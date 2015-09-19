@@ -6,14 +6,15 @@ import (
 	"encoding/base64"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
-	"golang.org/x/crypto/scrypt"
+	"github.com/grffn/movier/Godeps/_workspace/src/golang.org/x/crypto/scrypt"
 
-	"github.com/StephanDollberg/go-json-rest-middleware-jwt"
-	"github.com/ant0ine/go-json-rest/rest"
-	"github.com/jinzhu/gorm"
-	_ "github.com/lib/pq"
+	"github.com/grffn/movier/Godeps/_workspace/src/github.com/StephanDollberg/go-json-rest-middleware-jwt"
+	"github.com/grffn/movier/Godeps/_workspace/src/github.com/ant0ine/go-json-rest/rest"
+	"github.com/grffn/movier/Godeps/_workspace/src/github.com/jinzhu/gorm"
+	_ "github.com/grffn/movier/Godeps/_workspace/src/github.com/lib/pq"
 )
 
 func main() {
@@ -122,7 +123,7 @@ func Register(w rest.ResponseWriter, r *rest.Request) {
 
 func (c *context) Init() {
 	var err error
-	c.DB, err = gorm.Open("postgres", "host=localhost port=5432 dbname=movier user=postgres password=123456 sslmode=disable")
+	c.DB, err = gorm.Open("postgres", os.Getenv("DATABASE_URL"))
 	if err != nil {
 		log.Fatal("Database connection error: %v", err)
 	}
