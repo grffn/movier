@@ -18,6 +18,7 @@ import (
 )
 
 func main() {
+	port := os.Getenv("PORT")
 	jwtMiddleware := &jwt.JWTMiddleware{
 		Key:           []byte("secret key"),
 		Realm:         "jwt auth",
@@ -43,7 +44,7 @@ func main() {
 		rest.Get("/refresh_token", jwtMiddleware.RefreshHandler),
 	)
 	api.SetApp(apiRouter)
-	log.Fatal(http.ListenAndServe(":5000", api.MakeHandler()))
+	log.Fatal(http.ListenAndServe(":"+port, api.MakeHandler()))
 }
 
 type context struct {
@@ -100,20 +101,17 @@ func Register(w rest.ResponseWriter, r *rest.Request) {
 		rest.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	log.Println(salt)
 	var password []byte
 	password, err = getPassword([]byte(model.Password), salt)
 	if err != nil {
 		rest.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	log.Println(password)
 	user := User{
 		Username: model.Username,
 		Password: base64.URLEncoding.EncodeToString(password),
 		Salt:     base64.URLEncoding.EncodeToString(salt),
 	}
-	log.Println(user)
 	c := context{}
 	c.Init()
 
