@@ -4,129 +4,94 @@ import (
 	"bytes"
 	"crypto/rand"
 	"encoding/base64"
-	"log"
 	"net/http"
 	"os"
-	"time"
 
+	"github.com/grffn/movier/Godeps/_workspace/src/github.com/gin-gonic/contrib/jwt"
 	"github.com/grffn/movier/Godeps/_workspace/src/golang.org/x/crypto/scrypt"
 
-	"github.com/grffn/movier/Godeps/_workspace/src/github.com/StephanDollberg/go-json-rest-middleware-jwt"
-	"github.com/grffn/movier/Godeps/_workspace/src/github.com/ant0ine/go-json-rest/rest"
-	"github.com/grffn/movier/Godeps/_workspace/src/github.com/jinzhu/gorm"
+	"github.com/grffn/movier/Godeps/_workspace/src/github.com/gin-gonic/gin"
 	_ "github.com/grffn/movier/Godeps/_workspace/src/github.com/lib/pq"
+	"github.com/grffn/movier/db"
+)
+
+var (
+	secret = os.Getenv("JWT_SECRET")
 )
 
 func main() {
 	port := os.Getenv("PORT")
-	jwtMiddleware := &jwt.JWTMiddleware{
-		Key:           []byte("secret key"),
-		Realm:         "jwt auth",
-		Timeout:       time.Hour,
-		MaxRefresh:    time.Hour * 24,
-		Authenticator: Authenticate,
-	}
-	c := context{}
-	c.Init()
+	c := db.CreateContext()
 	c.InitSchema()
-	api := rest.NewApi()
-	api.Use(rest.DefaultDevStack...)
-	api.Use(&rest.IfMiddleware{
-		Condition: func(request *rest.Request) bool {
-			return request.URL.Path != "/login" &&
-				request.URL.Path != "/register"
-		},
-		IfTrue: jwtMiddleware,
+	router := gin.Default()
+	authenticated := router.Group("/")
+	authenticated.Use(authHandler)
+	authenticated.POST("/create", func(context *gin.Context) {
+
 	})
-	apiRouter, _ := rest.MakeRouter(
-		rest.Post("/login", jwtMiddleware.LoginHandler),
-		rest.Post("/register", Register),
-		rest.Get("/refresh_token", jwtMiddleware.RefreshHandler),
-	)
-	api.SetApp(apiRouter)
-	log.Fatal(http.ListenAndServe(":"+port, api.MakeHandler()))
+	router.Run(":" + port)
 }
 
-type context struct {
-	DB gorm.DB
+func makeHandler(handler func(*gin.Context, *db.Context)) gin.HandlerFunc {
+	return func(context *gin.Context) {
+		db := db.CreateContext()
+		handler(context, db)
+	}
 }
 
-//Model -- GORM base model
-type Model struct {
-	ID        uint `gorm:"primaty_key"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt *time.Time
-}
-
-//User db model
-type User struct {
-	gorm.Model
-	Username string
-	Password string
-	Salt     string
-}
-
-//RegisterModel - Registration View Model
-type RegisterModel struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
-func Authenticate(userID string, password string) bool {
-	c := context{}
-	c.Init()
-	user := User{}
-	c.DB.Where("username = ?", userID).First(&user)
+func loginHandler(context *gin.Context, database *db.Context) {
+	var model db.LoginModel
+	err := context.BindJSON(&model)
+	if err != nil {
+		context.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	user := db.User{}
+	database.DB.Where("username = ? or email = ?", model.UserID).First(&user)
 	storedPassword, _ := base64.URLEncoding.DecodeString(user.Password)
 	salt, _ := base64.URLEncoding.DecodeString(user.Salt)
-	checkPassword, _ := getPassword([]byte(password), salt)
-	return bytes.Compare(storedPassword, checkPassword) == 0
+	checkPassword, _ := getPassword([]byte(model.Password), salt)
+	if bytes.Compare(storedPassword, checkPassword) == 0 {
+		context.JSON(http.StatusOK, "")
+	} else {
+		context.JSON(http.StatusUnauthorized, gin.H{"status": "Login or password is incorrect"})
+		context.Abort()
+	}
 }
 
-func getPassword(password []byte, salt []byte) ([]byte, error) {
-	return scrypt.Key(password, salt, 16384, 8, 1, 32)
-}
-
-func Register(w rest.ResponseWriter, r *rest.Request) {
-	model := RegisterModel{}
-	err := r.DecodeJsonPayload(&model)
+func registrationHandler(context *gin.Context, database *db.Context) {
+	model := db.RegisterModel{}
+	err := context.BindJSON(&model)
 	if err != nil {
-		rest.Error(w, err.Error(), http.StatusInternalServerError)
+		context.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 	salt := make([]byte, 128)
 	_, err = rand.Read(salt)
 	if err != nil {
-		rest.Error(w, err.Error(), http.StatusInternalServerError)
+		context.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 	var password []byte
 	password, err = getPassword([]byte(model.Password), salt)
 	if err != nil {
-		rest.Error(w, err.Error(), http.StatusInternalServerError)
+		context.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	user := User{
+	user := db.User{
 		Username: model.Username,
 		Password: base64.URLEncoding.EncodeToString(password),
 		Salt:     base64.URLEncoding.EncodeToString(salt),
 	}
-	c := context{}
-	c.Init()
 
-	c.DB.Create(&user)
-	w.WriteHeader(http.StatusOK)
+	database.DB.Create(&user)
+	context.JSON(http.StatusOK, "")
 }
 
-func (c *context) Init() {
-	var err error
-	c.DB, err = gorm.Open("postgres", os.Getenv("DATABASE_URL"))
-	if err != nil {
-		log.Fatal("Database connection error: %v", err)
-	}
+func authHandler(context *gin.Context) {
+	jwt.Auth(secret)
 }
 
-func (c *context) InitSchema() {
-	c.DB.AutoMigrate(&User{})
+func getPassword(password []byte, salt []byte) ([]byte, error) {
+	return scrypt.Key(password, salt, 16384, 8, 1, 32)
 }
