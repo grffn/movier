@@ -24,6 +24,8 @@ func main() {
 	c := db.CreateContext()
 	c.InitSchema()
 	router := gin.Default()
+	router.POST("/register", makeHandler(registrationHandler))
+	router.POST("/login", makeHandler(loginHandler))
 	authenticated := router.Group("/")
 	authenticated.Use(authHandler)
 	authenticated.POST("/create", func(context *gin.Context) {
