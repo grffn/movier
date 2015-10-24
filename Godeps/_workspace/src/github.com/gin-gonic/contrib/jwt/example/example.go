@@ -1,9 +1,9 @@
 package main
 
 import (
-	jwt_lib "github.com/grffn/movier/Godeps/_workspace/src/github.com/dgrijalva/jwt-go"
-	"github.com/grffn/movier/Godeps/_workspace/src/github.com/gin-gonic/contrib/jwt"
-	"github.com/grffn/movier/Godeps/_workspace/src/github.com/gin-gonic/gin"
+	jwt_lib "github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/contrib/jwt"
+	"github.com/gin-gonic/gin"
 	"time"
 )
 

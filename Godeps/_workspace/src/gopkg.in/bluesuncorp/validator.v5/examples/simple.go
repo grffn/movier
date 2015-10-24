@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/grffn/movier/Godeps/_workspace/src/gopkg.in/bluesuncorp/validator.v5"
+	"gopkg.in/bluesuncorp/validator.v5"
 )
 
 // User contains user information

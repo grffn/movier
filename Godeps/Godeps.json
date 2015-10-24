@@ -20,15 +20,6 @@
 			"Rev": "704d690ac0e25fcd060ff82f75f913e879e65a3c"
 		},
 		{
-			"ImportPath": "github.com/jinzhu/gorm",
-			"Rev": "2a46856d5238837a5f65f4a05181a6685335a4af"
-		},
-		{
-			"ImportPath": "github.com/lib/pq",
-			"Comment": "go1.0-cutoff-59-gb269bd0",
-			"Rev": "b269bd035a727d6c1081f76e7a239a1b00674c40"
-		},
-		{
 			"ImportPath": "github.com/manucorporat/sse",
 			"Rev": "fe6ea2c8e398672518ef204bf0fbd9af858d0e15"
 		},
@@ -39,10 +30,6 @@
 		{
 			"ImportPath": "github.com/mattn/go-isatty",
 			"Rev": "7fcbc72f853b92b5720db4a6b8482be612daef24"
-		},
-		{
-			"ImportPath": "github.com/qor/inflection",
-			"Rev": "45321e63b98c756df17369c027c1df89298e1288"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/pbkdf2",
@@ -60,6 +47,11 @@
 			"ImportPath": "gopkg.in/bluesuncorp/validator.v5",
 			"Comment": "v5.11",
 			"Rev": "98121ac23ff3d764f525d18d8de944d150e3c0fe"
+		},
+		{
+			"ImportPath": "gopkg.in/mgo.v2",
+			"Comment": "r2015.10.05",
+			"Rev": "f402e3a216db333ae6b3ba68b9152a34a0bc6984"
 		}
 	]
 }

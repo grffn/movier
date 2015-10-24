@@ -5,59 +5,45 @@ import (
 	"os"
 	"time"
 
-	"github.com/grffn/movier/Godeps/_workspace/src/github.com/jinzhu/gorm"
-	_ "github.com/grffn/movier/Godeps/_workspace/src/github.com/lib/pq"
+	"gopkg.in/mgo.v2"
 )
 
+//Context of application
 type Context struct {
-	DB gorm.DB
+	Session *mgo.Session
 }
 
+//Init Initialize database connection. Use this method before using database
 func (c *Context) Init() {
-	var err error
-	log.Println(os.Getenv("DATABASE_URL"))
-	c.DB, err = gorm.Open("postgres", os.Getenv("DATABASE_URL"))
-
-	if err != nil {
-		log.Fatalf("Database connection error: %s", err)
+	if c.Session != nil {
+		c.Session = c.Session.Copy()
+	} else {
+		var err error
+		if os.Getenv("debug") == "true" {
+			var aLogger *log.Logger
+			aLogger = log.New(os.Stderr, "", log.LstdFlags)
+			mgo.SetLogger(aLogger)
+		}
+		c.Session, err = mgo.DialWithTimeout(os.Getenv("MONGO_DB_URL"), time.Duration(5*time.Second))
+		if err != nil {
+			log.Fatalf("Database connection error: %s", err)
+		}
 	}
 }
 
-func (c *Context) InitSchema() {
-	c.DB.AutoMigrate(&User{})
+//DB Get database
+func (c *Context) DB() *mgo.Database {
+	return c.Session.DB("movier")
 }
 
+//Close Close database connection
+func (c *Context) Close() {
+	c.Session.Close()
+}
+
+//CreateContext Create context
 func CreateContext() *Context {
 	var c = Context{}
 	c.Init()
 	return &c
-}
-
-//Model -- GORM base model
-type Model struct {
-	ID        uint `gorm:"primary_key"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt *time.Time
-}
-
-//User db model
-type User struct {
-	gorm.Model
-	Username string
-	Password string
-	Salt     string
-}
-
-//RegisterModel - Registration View Model
-type RegisterModel struct {
-	Email    string `json:"email" binding:"required"`
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
-}
-
-//LoginModel - Login View Model
-type LoginModel struct {
-	UserID   string `json:"userid" binding:"required"`
-	Password string `json:"password" binding:"required"`
 }
