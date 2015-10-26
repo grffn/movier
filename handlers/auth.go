@@ -10,7 +10,6 @@ import (
 	"time"
 
 	jwt_lib "github.com/dgrijalva/jwt-go"
-	"github.com/gin-gonic/contrib/jwt"
 	"github.com/gin-gonic/gin"
 	"github.com/grffn/movier/db"
 	"github.com/grffn/movier/models"
@@ -31,17 +30,8 @@ func LoginHandler(context *gin.Context, database *db.Context) {
 		context.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	user := db.User{}
-	query := bson.M{
-		"$or": []interface{}{
-			bson.M{"username": model.UserID},
-			bson.M{"email": model.UserID},
-		},
-	}
-	database.DB().C("users").Find(query).One(&user)
-	log.Println(user.Password)
+	user := database.FindUser(model.UserID)
 	storedPassword, _ := base64.URLEncoding.DecodeString(user.Password)
-	log.Println(storedPassword)
 	salt, _ := base64.URLEncoding.DecodeString(user.Salt)
 	checkPassword, _ := util.GeneratePassword([]byte(model.Password), salt)
 	if bytes.Compare(storedPassword, checkPassword) == 0 {
@@ -93,5 +83,5 @@ func RegistrationHandler(context *gin.Context, database *db.Context) {
 
 //AuthHandler Hndler for authentication method
 func AuthHandler(context *gin.Context) {
-	jwt.Auth(secret)(context)
+	util.JWTAuth(secret)(context)
 }

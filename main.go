@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 
 	"gopkg.in/mgo.v2"
@@ -22,9 +21,8 @@ func main() {
 	router.POST("/login", makeHandler(handlers.LoginHandler))
 	authenticated := router.Group("/")
 	authenticated.Use(handlers.AuthHandler)
-	authenticated.POST("/create", func(context *gin.Context) {
-		log.Println("Hello, World")
-	})
+	authenticated.POST("/create", makeHandler(handlers.CreateHandler))
+	authenticated.GET("/sign", handlers.SignHandler)
 	router.Run(":" + port)
 }
 

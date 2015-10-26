@@ -11,8 +11,15 @@ type User struct {
 	Salt     string        `bson:"salt"`
 }
 
-type Source struct {
-	ID     bson.ObjectId `bson:"_id"`
-	UserID uint          `bson:"userId"`
-	Name   string        `bson:"name"`
+/*Document Document db entry
+ */
+type Document struct {
+	ID       bson.ObjectId `bson:"_id"`
+	UserID   bson.ObjectId `bson:"userId"`
+	Name     string        `bson:"name"`
+	Category string        `bson:"category"`
+	Tags     []string      `bson:"tags"`
+	URL      string        `bson:"url"`
+	MimeType string        `bson:"mimetype"`
+	Authors  []string      `bson:"authors"`
 }

@@ -6,6 +6,14 @@ import (
 	"time"
 
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
+)
+
+const (
+	//Collection of users
+	UsersCollection = "users"
+	//Collection of documents
+	DocumentsCollection = "documents"
 )
 
 //Context of application
@@ -34,6 +42,26 @@ func (c *Context) Init() {
 //DB Get database
 func (c *Context) DB() *mgo.Database {
 	return c.Session.DB("movier")
+}
+
+func (c *Context) FindUser(userID string) User {
+	user := User{}
+	query := bson.M{
+		"$or": []interface{}{
+			bson.M{"username": userID},
+			bson.M{"email": userID},
+		},
+	}
+	c.DB().C(UsersCollection).Find(query).One(&user)
+	return user
+}
+
+func (c *Context) NewUser(user User) {
+	c.DB().C(UsersCollection).Insert(user)
+}
+
+func (c *Context) NewDocument(document Document) {
+	c.DB().C(DocumentsCollection).Insert(document)
 }
 
 //Close Close database connection
