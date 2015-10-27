@@ -56,12 +56,23 @@ func (c *Context) FindUser(userID string) User {
 	return user
 }
 
-func (c *Context) NewUser(user User) {
-	c.DB().C(UsersCollection).Insert(user)
+func (c *Context) NewUser(user User) error {
+	return c.DB().C(UsersCollection).Insert(user)
 }
 
-func (c *Context) NewDocument(document Document) {
-	c.DB().C(DocumentsCollection).Insert(document)
+func (c *Context) NewDocument(document Document) error {
+	return c.DB().C(DocumentsCollection).Insert(document)
+}
+
+func (c *Context) Documents() (documents []Document, err error) {
+	err = c.DB().C(DocumentsCollection).Find(nil).All(&documents)
+	return
+}
+
+func (c *Context) Categories() ([]string, error) {
+	var categories []string
+	err := c.DB().C(DocumentsCollection).Find(nil).Select(bson.M{"category": 1}).Distinct("category", &categories)
+	return categories, err
 }
 
 //Close Close database connection

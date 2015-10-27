@@ -23,6 +23,9 @@ func main() {
 	authenticated.Use(handlers.AuthHandler)
 	authenticated.POST("/create", makeHandler(handlers.CreateHandler))
 	authenticated.GET("/sign", handlers.SignHandler)
+
+	authenticated.GET("/documents", makeHandler(handlers.DocumentsHandler))
+	authenticated.GET("/categories", makeHandler(handlers.CategoriesHandler))
 	router.Run(":" + port)
 }
 
