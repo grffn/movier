@@ -37,7 +37,7 @@ func LoginHandler(context *gin.Context, database *db.Context) {
 	if bytes.Compare(storedPassword, checkPassword) == 0 {
 		token := jwt_lib.New(jwt_lib.GetSigningMethod("HS256"))
 		token.Claims["ID"] = user.Username
-		token.Claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
+		token.Claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 		tokenString, err := token.SignedString([]byte(secret))
 		if err != nil {
 			context.JSON(500, gin.H{"message": "Could not generate token"})
