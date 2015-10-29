@@ -19,6 +19,7 @@ func main() {
 	router := gin.Default()
 	router.POST("/register", makeHandler(handlers.RegistrationHandler))
 	router.POST("/login", makeHandler(handlers.LoginHandler))
+
 	authenticated := router.Group("/")
 	authenticated.Use(handlers.AuthHandler)
 	authenticated.POST("/create", makeHandler(handlers.CreateHandler))
@@ -26,6 +27,9 @@ func main() {
 
 	authenticated.GET("/documents", makeHandler(handlers.DocumentsHandler))
 	authenticated.GET("/categories", makeHandler(handlers.CategoriesHandler))
+
+	router.StaticFile("/index", "web/index.html")
+	router.Static("/assets", "web/assets")
 	router.Run(":" + port)
 }
 
