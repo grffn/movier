@@ -23,3 +23,22 @@ func CategoriesHandler(context *gin.Context, database *db.Context) {
 	}
 	context.JSON(http.StatusOK, result)
 }
+
+func DocumentsByCategoryHandler(context *gin.Context, database *db.Context) {
+	category := context.Param("category")
+	result, err := database.DocumentsByCategory(category)
+	if err != nil {
+		context.AbortWithError(http.StatusInternalServerError, err)
+	}
+	context.JSON(http.StatusOK, result)
+}
+
+func DocumentsByTagHandler(context *gin.Context, database *db.Context) {
+	tag := context.Param("tag")
+	println(tag)
+	result, err := database.DocumentsByTag(tag)
+	if err != nil {
+		context.AbortWithError(http.StatusInternalServerError, err)
+	}
+	context.JSON(http.StatusOK, result)
+}

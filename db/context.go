@@ -69,6 +69,16 @@ func (c *Context) Documents() (documents []Document, err error) {
 	return
 }
 
+func (c *Context) DocumentsByCategory(category string) (documents []Document, err error) {
+	err = c.DB().C(DocumentsCollection).Find(bson.M{"category": category}).All(&documents)
+	return
+}
+
+func (c *Context) DocumentsByTag(tag string) (documents []Document, err error) {
+	err = c.DB().C(DocumentsCollection).Find(bson.M{"tags": tag}).All(&documents)
+	return
+}
+
 func (c *Context) Categories() ([]string, error) {
 	var categories []string
 	err := c.DB().C(DocumentsCollection).Find(nil).Select(bson.M{"category": 1}).Distinct("category", &categories)

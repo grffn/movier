@@ -97,6 +97,11 @@ var IndexViewModel = function() {
   this.RegisterModel = new RegisterModel();
 
   this.documents = ko.observableArray();
+  this.categories = ko.observableArray();
+
+  this.changeCategory = function(category) {
+    self.LoadData(category);
+  }
 
   this.createDocument = function(obj) {
     var data = {
@@ -116,14 +121,15 @@ var IndexViewModel = function() {
         'Authorization': 'Bearer ' + localStorage.getItem("token")
       },
       data: JSON.stringify(data)
-    }).success(function(){
+    }).success(function() {
       self.documents.push(data);
     });
   }
 
-  this.LoadData = function() {
+  this.LoadData = function(category) {
+    var url = "/documents" + (category ? ("/category/" + category) : "");
     $.ajax({
-      url: "/documents",
+      url: url,
       headers: {
         'Authorization': 'Bearer ' + localStorage.getItem("token")
       },
@@ -135,8 +141,23 @@ var IndexViewModel = function() {
     });
   };
 
+  this.LoadCategories = function() {
+    $.ajax({
+      url: "/categories",
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem("token")
+      },
+      method: 'get'
+    }).success(function(data) {
+      self.categories(data);
+    }).error(function(jqxhr, status, error) {
+      Materialize.toast("Error: " + error);
+    });
+  }
+
   if (this.isLoggedIn()) {
     self.LoadData();
+    self.LoadCategories();
   }
 }
 

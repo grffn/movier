@@ -26,6 +26,8 @@ func main() {
 	authenticated.GET("/sign", handlers.SignHandler)
 
 	authenticated.GET("/documents", makeHandler(handlers.DocumentsHandler))
+	authenticated.GET("/documents/category/:category", makeHandler(handlers.DocumentsByCategoryHandler))
+	authenticated.GET("/documents/tag/:tag", makeHandler(handlers.DocumentsByTagHandler))
 	authenticated.GET("/categories", makeHandler(handlers.CategoriesHandler))
 
 	router.StaticFile("/", "web/index.html")
