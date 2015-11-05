@@ -28,7 +28,7 @@ func main() {
 	authenticated.GET("/documents", makeHandler(handlers.DocumentsHandler))
 	authenticated.GET("/categories", makeHandler(handlers.CategoriesHandler))
 
-	router.StaticFile("/index", "web/index.html")
+	router.StaticFile("/", "web/index.html")
 	router.Static("/assets", "web/assets")
 	router.Run(":" + port)
 }

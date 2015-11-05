@@ -45,7 +45,7 @@ func CreateHandler(context *gin.Context, database *db.Context) {
 func SignHandler(context *gin.Context) {
 	fileName := context.Query("filename")
 	fileType := context.Query("filetype")
-
+	fmt.Println(fileName, fileType)
 	accessKey := os.Getenv("AWS_ACCESS_KEY_ID")
 	secretKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
 	bucket := os.Getenv("S3_BUCKET_NAME")
@@ -55,15 +55,15 @@ func SignHandler(context *gin.Context) {
 	amzHeaders := "x-amz-acl:public-read"
 
 	stringToSign := fmt.Sprintf("PUT\n\n%s\n%d\n%s\n/%s/%s", fileType, expires, amzHeaders, bucket, fileName)
-	hasher := hmac.New(sha1.New, []byte(accessKey))
+	hasher := hmac.New(sha1.New, []byte(secretKey))
 	hasher.Write([]byte(stringToSign))
 
-	signature := url.QueryEscape(base64.URLEncoding.EncodeToString(hasher.Sum(nil)))
+	signature := base64.URLEncoding.EncodeToString(hasher.Sum(nil))
 	query := url.Values{
-		"AWSAccessKeyId": []string{secretKey},
+		"AWSAccessKeyId": []string{accessKey},
 		"Expires":        []string{strconv.FormatInt(expires, 10)},
 		"Signature":      []string{signature},
 	}
-	url := fmt.Sprintf("https://%s.s3.amazonaws.com/%s", bucket, fileName)
+	url := fmt.Sprintf("https://%s.s3-eu-west-1.amazonaws.com/%s", bucket, fileName)
 	context.JSON(http.StatusOK, gin.H{"signedRequest": url + "?" + query.Encode(), "url": url})
 }

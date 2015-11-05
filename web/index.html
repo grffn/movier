@@ -5,92 +5,160 @@
   <!--Import Google Icon Font-->
   <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <!--Import materialize.css-->
-  <link type="text/css" rel="stylesheet" href="/assets/css/materialize.min.css" media="screen,projection" />
+  <link type="text/css" rel="stylesheet" href="./assets/css/materialize.min.css" media="screen,projection" />
 
   <!--Let browser know website is optimized for mobile-->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
 
 <body>
-  <div class="container">
-    <!-- ko ifnot: isLoggedIn -->
-    <div class="row">
-      <div class="col s12">
-        <ul class="tabs">
-          <li class="tab col s6"><a href="#signin">Sign In</a></li>
-          <li class="tab col s6"><a href="#register">Register</a></li>
-        </ul>
-      </div>
-      <div id="signin" class="col s12" data-bind="with: LoginModel">
-        <form class="row" data-bind="submit: signIn">
-          <div class="input-field col s6">
-            <input placeholder="Email or username" id="signIn_userId" type="text" class="validate" data-bind="textInput: UserId">
-            <label for="signIn_userId">User ID</label>
-          </div>
-          <div class="input-field col s6">
-            <input id="signIn_password" type="password" class="validate" data-bind="textInput: Password">
-            <label for="signIn_password">Password</label>
-          </div>
-          <button class="btn waves-effect waves-light" type="submit" name="action">Submit
-            <i class="material-icons right">send</i>
-          </button>
-        </form>
-      </div>
-      <div id="register" class="col s12" data-bind="with: RegisterModel">
-        <form class="row" data-bind="submit: register">
-          <div class="input-field col s4">
-            <input placeholder="Email" id="register_email" type="email" class="validate" data-bind="textInput: Email">
-            <label for="register_email">Email</label>
-          </div>
-          <div class="input-field col s4">
-            <input placeholder="Email" id="register_username" type="text" class="validate" data-bind="textInput: Username">
-            <label for="register_username">Username</label>
-          </div>
-          <div class="input-field col s4">
-            <input id="register_password" type="password" class="validate" data-bind="textInput: Password">
-            <label for="register_password">Password</label>
-          </div>
-          <button class="btn waves-effect waves-light" type="submit" name="action">Submit
-            <i class="material-icons right">send</i>
-          </button>
-        </form>
-      </div>
-    </div>
-    <!-- /ko -->
-    <!-- ko if: isLoggedIn -->
-    <a class="waves-effect waves-light btn" data-bind="click: signOut">Sign Out</a>
-    <div class="row">
-      <div class="col s12">
-        <ul class="collection with-header">
-          <li class="collection-header">
-            <h4>Documents</h4>
-          </li>
-          <!-- ko foreach: documents -->
-          <li class="collection-item avatar">
-            <span class="title" data-bind="text: Name"></span>
-            <p>
-              <!-- ko text: Category -->
-              <!-- /ko -->
-              <br>
-              <!-- ko text: Authors -->
-              <!-- /ko -->
-              <br>
-              <ul data-bind="foreach: Tags">
-                <li class="chip" data-bind="text: $data"></li>
-              </ul>
-            </p>
-          </li>
+  <header>
+    <nav class="top-nav">
+      <div class="container">
+        <div class="nav-wrapper">
+          <a class="page-title">Navbar</a>
+          <!-- ko if: isLoggedIn -->
+          <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <li><a href="#modal_create" class="modal-trigger" data-bind="click: openCreateNew">Create New</a></li>
+            <li><a href="javascript:;" data-bind="click: signOut">Sign Out</a></li>
+          </ul>
           <!-- /ko -->
-        </ul>
+        </div>
       </div>
+    </nav>
+  </header>
+  <main>
+    <div class="container">
+      <!-- ko ifnot: isLoggedIn -->
+      <div class="row">
+        <div class="col s12">
+          <ul class="tabs">
+            <li class="tab col s6"><a href="#signin">Sign In</a></li>
+            <li class="tab col s6"><a href="#register">Register</a></li>
+          </ul>
+        </div>
+        <div id="signin" class="col s12" data-bind="with: LoginModel">
+          <form class="row" data-bind="submit: signIn">
+            <div class="input-field col s6">
+              <input placeholder="Email or username" id="signIn_userId" type="text" class="validate" data-bind="textInput: UserId">
+              <label for="signIn_userId">User ID</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="signIn_password" type="password" class="validate" data-bind="textInput: Password">
+              <label for="signIn_password">Password</label>
+            </div>
+            <button class="btn waves-effect waves-light" type="submit" name="action">Submit
+              <i class="material-icons right">send</i>
+            </button>
+          </form>
+        </div>
+        <div id="register" class="col s12" data-bind="with: RegisterModel">
+          <form class="row" data-bind="submit: register">
+            <div class="input-field col s4">
+              <input placeholder="Email" id="register_email" type="email" class="validate" data-bind="textInput: Email">
+              <label for="register_email">Email</label>
+            </div>
+            <div class="input-field col s4">
+              <input placeholder="Email" id="register_username" type="text" class="validate" data-bind="textInput: Username">
+              <label for="register_username">Username</label>
+            </div>
+            <div class="input-field col s4">
+              <input id="register_password" type="password" class="validate" data-bind="textInput: Password">
+              <label for="register_password">Password</label>
+            </div>
+            <button class="btn waves-effect waves-light" type="submit" name="action">Submit
+              <i class="material-icons right">send</i>
+            </button>
+          </form>
+        </div>
+      </div>
+      <!-- /ko -->
+      <!-- ko if: isLoggedIn -->
+
+      <h4>Documents</h4>
+      <div class="row">
+        <!-- ko foreach: documents -->
+        <div class="col s12 m6 l4">
+          <div class="card blue-grey">
+            <div class="card-content white-text">
+              <span class="card-title" data-bind="text: Name"></span>
+              <p>
+                <!-- ko text: Category -->
+                <!-- /ko -->
+                <br>
+                <!-- ko text: Authors -->
+                <!-- /ko -->
+                <br>
+                <ul data-bind="foreach: Tags">
+                  <li class="chip" data-bind="text: $data"></li>
+                </ul>
+            </div>
+            <div class="card-action">
+              <a data-bind="attr: {'href': URL}">This is a link</a>
+            </div>
+          </div>
+        </div>
+        <!-- /ko -->
+      </div>
+      <!-- /ko -->
     </div>
-    <!-- /ko -->
+  </main>
+
+  <div id="modal_create" class="modal"  data-bind="with: NewDocument">
+    <div class="modal-content">
+      <h4>New Document</h4>
+      <form class="col s12">
+        <div class="row">
+          <div class="input-field col s6">
+            <input placeholder="Placeholder" id="title" type="text" data-bind="textInput: Name">
+            <label for="title">Title</label>
+          </div>
+          <div class="input-field col s6">
+            <input id="category" type="text" data-bind="textInput: Category">
+            <label for="category">Category</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <input id="tags" type="text" data-bind="textInput: Tags">
+            <label for="tags">Tags</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <input id="authors" type="text" data-bind="textInput: Authors">
+            <label for="authors">Authors</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <input id="url" type="text" data-bind="textInput: URL">
+            <label for="url">URL</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="file-field input-field">
+            <div class="btn">
+              <span>File</span>
+              <input type="file" data-bind="event: {'change': fileOpened}">
+            </div>
+            <div class="file-path-wrapper">
+              <input class="file-path validate" type="text">
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class=" modal-action modal-close waves-effect waves-green btn" data-bind="click: $parent.createDocument">Create</a>
+      <a href="#!" class=" modal-action modal-close waves-effect waves-green btn">Cancel</a>
+    </div>
   </div>
-  <script type="text/javascript" src="/assets/js/knockout-3.3.0.js"></script>
-  <script type="text/javascript" src="/assets/js/jquery-2.1.4.min.js"></script>
-  <script type="text/javascript" src="/assets/js/materialize.min.js"></script>
-  <script type="text/javascript" src="/assets/js/moment.min.js"></script>
-  <script type="text/javascript" src="/assets/js/script.js"></script>
+  <script type="text/javascript" src="./assets/js/knockout-3.3.0.js"></script>
+  <script type="text/javascript" src="./assets/js/jquery-2.1.4.min.js"></script>
+  <script type="text/javascript" src="./assets/js/materialize.min.js"></script>
+  <script type="text/javascript" src="./assets/js/moment.min.js"></script>
+  <script type="text/javascript" src="./assets/js/script.js"></script>
 </body>
 
 </html>
